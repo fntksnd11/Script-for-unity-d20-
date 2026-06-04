@@ -1,88 +1,43 @@
-﻿using System;
-using System.Security.Cryptography;
+using UnityEngine;
 
-class DiceQuestSystem
+public class DiceRoller : MonoBehaviour
 {
-    static int strengthModifier = 2;
-    static int charismaModifier = 3;
-    static int intelligenceModifier = 1;
-    static int questDifficulty = 12;
+    public int strengthModifier = 2;
+    public int charismaModifier = 3;
+    public int intelligenceModifier = 1;
+    public int questDifficulty = 12;
 
-    static void Main()
+    void Start()
     {
-        Console.WriteLine("КИДАННЯ КУБИКА D20");
-        Console.WriteLine("Введіть: strength(str), charisma(cha) або intelligence(int)\n");
+        Debug.Log("Гра готова! Натискайте клавіші 1, 2, 3");
+    }
 
-        while (true)
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            Console.Write("> ");
-            string input = Console.ReadLine()?.ToLower();
-
-            switch (input)
-            {
-                case "str":
-                    RollForAction("сили", strengthModifier);
-                    break;
-                case "cha":
-                    RollForAction("харизми", charismaModifier);
-                    break;
-                case "int":
-                    RollForAction("інтелекту", intelligenceModifier);
-                    break;
-                case "exit":
-                    Console.WriteLine("До побачення!");
-                    return;
-                default:
-                    Console.WriteLine("Невідома команда. Спробуйте: str, cha, int або exit");
-                    break;
-            }
+            RollDice("Сила", strengthModifier);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            RollDice("Харизма", charismaModifier);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            RollDice("Інтелект", intelligenceModifier);
         }
     }
 
-    static void RollForAction(string skillName, int modifier)
+    void RollDice(string skillName, int modifier)
     {
-        int diceRoll = GetCryptoRandomNumber(1, 21);
-        int totalResult = diceRoll + modifier;
+        int roll = Random.Range(1, 21);
+        int total = roll + modifier;
 
-        Console.WriteLine($"\n--- Кидок {skillName} ---");
-        Console.WriteLine($"Кубик d20: {diceRoll}");
-        Console.WriteLine($"Модифікатор ({skillName}): +{modifier}");
-        Console.WriteLine($"Підсумок: {diceRoll} + {modifier} = {totalResult}");
-        Console.WriteLine($"Складність квесту: {questDifficulty}");
+        Debug.Log($"Кидок {skillName}: d20 = {roll} + {modifier} = {total} (Потрібно > {questDifficulty})");
 
-        if (totalResult > questDifficulty)
-        {
-            Console.WriteLine($"✅ УСПІХ! {totalResult} > {questDifficulty}");
-        }
+        if (total > questDifficulty)
+            Debug.Log($"✅ УСПІХ!");
         else
-        {
-            Console.WriteLine($"❌ ПРОВАЛ! {totalResult} <= {questDifficulty}");
-        }
-    }
-
-    static int GetCryptoRandomNumber(int minValue, int maxValue)
-    {
-        if (minValue >= maxValue)
-            throw new ArgumentException("minValue має бути менше maxValue");
-
-        using (RandomNumberGenerator rng = RandomNumberGenerator.Create())
-        {
-            byte[] randomBytes = new byte[4]; 
-            rng.GetBytes(randomBytes);
-
-            uint randomUInt = BitConverter.ToUInt32(randomBytes, 0);
-
-            int range = maxValue - minValue;
-
-            uint maxAcceptable = uint.MaxValue - (uint.MaxValue % (uint)range);
-
-            while (randomUInt >= maxAcceptable)
-            {
-                rng.GetBytes(randomBytes);
-                randomUInt = BitConverter.ToUInt32(randomBytes, 0);
-            }
-
-            return (int)(minValue + (randomUInt % (uint)range));
-        }
+            Debug.Log($"❌ ПРОВАЛ!");
     }
 }
